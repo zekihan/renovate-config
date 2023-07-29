@@ -12,6 +12,9 @@
     "dependency/renovate"
   ],
   "dependencyDashboardAutoclose": false,
+  "reviewers": [
+    "Zekihan"
+  ],
   "packageRules": [
     {
       "matchPackageNames": [
@@ -21,36 +24,17 @@
       "enabled": false
     },
     {
-      "description": "All Digest",
-      "groupName": "Digest-Updates",
+      "description": "All Updates",
+      "groupName": "All",
+      "groupSlug": "all",
       "matchUpdateTypes": [
-        "digest"
-      ],
-      "minimumReleaseAge": "1 days"
-    },
-    {
-      "description": "All Patch",
-      "groupName": "Patch-Updates",
-      "matchUpdateTypes": [
-        "patch"
-      ],
-      "minimumReleaseAge": "1 days"
-    },
-    {
-      "description": "All Minor",
-      "groupName": "Minor-Updates",
-      "matchUpdateTypes": [
-        "minor"
-      ],
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "description": "All Major",
-      "groupName": "Major-Updates",
-      "matchUpdateTypes": [
+        "digest",
+        "patch",
+        "minor",
         "major"
       ],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "3 days",
+      "separateMajorMinor": false
     }
   ]
 }
