@@ -17,7 +17,7 @@
   ],
   "packageRules": [
     {
-      "description": "All Updates",
+      "description": "Dependency upgrades",
       "groupName": "All",
       "groupSlug": "all",
       "matchUpdateTypes": [
@@ -26,7 +26,6 @@
         "minor",
         "major"
       ],
-      "minimumReleaseAge": "3 days",
       "separateMajorMinor": false
     }
   ]
