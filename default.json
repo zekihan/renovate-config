@@ -1,19 +1,33 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    "github>zekihan/renovate-config:pr-labels"
-  ],
-  "prHourlyLimit": 10,
-  "addLabels": [
-    "dependency/renovate"
-  ],
-  "dependencyDashboard": true,
-  "dependencyDashboardLabels": [
-    "dependency/renovate"
-  ],
-  "dependencyDashboardAutoclose": false,
-  "reviewers": [
-    "zekihan"
-  ]
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": [
+		"config:recommended",
+		":dependencyDashboard",
+		":disableRateLimiting",
+		":enablePreCommit",
+		"github>zekihan/renovate-config:automerge-docker-digest",
+		"github>zekihan/renovate-config:automerge-github-actions",
+		"github>zekihan/renovate-config:commit-message",
+		"github>zekihan/renovate-config:pr-labels",
+		"github>zekihan/renovate-config:semantic-commits",
+		"github>zekihan/renovate-config:custom-managers.json5"
+	],
+	"timezone": "Europe/Amsterdam",
+	"dependencyDashboardTitle": "Renovate Dashboard",
+	"suppressNotifications": [
+		"prIgnoreNotification"
+	],
+	"dependencyDashboardLabels": [
+		"dependency/renovate"
+	],
+	"addLabels": [
+		"dependency/renovate"
+	],
+	"dependencyDashboardAutoclose": false,
+	"reviewers": [
+		"zekihan"
+	],
+	"commitBodyTable": true,
+	"rebaseWhen": "auto",
+	"platformCommit": "enabled"
 }
