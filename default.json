@@ -29,5 +29,6 @@
 	],
 	"commitBodyTable": true,
 	"rebaseWhen": "auto",
-	"platformCommit": "enabled"
+	"platformCommit": "enabled",
+	"configMigration": true
 }
