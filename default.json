@@ -10,6 +10,7 @@
 		"github>zekihan/renovate-config:commit-message",
 		"github>zekihan/renovate-config:pr-labels",
 		"github>zekihan/renovate-config:semantic-commits",
+		"github>zekihan/renovate-config:go",
 		"github>zekihan/renovate-config:custom-managers.json5"
 	],
 	"timezone": "Europe/Istanbul",
