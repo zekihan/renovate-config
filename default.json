@@ -12,7 +12,7 @@
 		"github>zekihan/renovate-config:semantic-commits",
 		"github>zekihan/renovate-config:custom-managers.json5"
 	],
-	"timezone": "Europe/Amsterdam",
+	"timezone": "Europe/Istanbul",
 	"dependencyDashboardTitle": "Renovate Dashboard",
 	"suppressNotifications": [
 		"prIgnoreNotification"
