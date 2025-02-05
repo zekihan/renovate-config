@@ -28,7 +28,7 @@
 		"zekihan"
 	],
 	"commitBodyTable": true,
-	"rebaseWhen": "auto",
+	"rebaseWhen": "behind-base-branch",
 	"platformCommit": "enabled",
 	"configMigration": true
 }
