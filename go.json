@@ -12,7 +12,8 @@
         "golang",
         "go"
       ],
-      "enabled": true
+      "enabled": true,
+      "rangeStrategy": "bump"
     }
   ]
 }
