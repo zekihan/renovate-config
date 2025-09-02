@@ -7,6 +7,7 @@
 		":enablePreCommit",
 		"github>zekihan/renovate-config:automerge-docker-digest",
 		"github>zekihan/renovate-config:automerge-github-actions",
+		"github>zekihan/renovate-config:automerge-patch",
 		"github>zekihan/renovate-config:commit-message",
 		"github>zekihan/renovate-config:pr-labels",
 		"github>zekihan/renovate-config:semantic-commits",
