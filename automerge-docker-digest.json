@@ -6,7 +6,7 @@
 				"docker"
 			],
 			"automerge": true,
-			"automergeType": "branch",
+			"automergeType": "pr",
 			"matchUpdateTypes": [
 				"digest"
 			],
