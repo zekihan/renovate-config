@@ -30,7 +30,7 @@
 		"zekihan"
 	],
 	"commitBodyTable": true,
-	"rebaseWhen": "behind-base-branch",
+	"rebaseWhen": "conflicted",
 	"platformCommit": "enabled",
 	"configMigration": true
 }
