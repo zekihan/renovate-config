@@ -7,7 +7,6 @@
 			],
 			"automerge": true,
       "automergeType": "branch",
-			"groupName": "container-digest-updates",
 			"matchUpdateTypes": [
 				"digest"
 			],

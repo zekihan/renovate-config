@@ -7,7 +7,6 @@
 			],
 			"automerge": true,
       "automergeType": "branch",
-			"groupName": "github-actions-updates",
 			"matchUpdateTypes": [
 				"minor",
 				"patch",
