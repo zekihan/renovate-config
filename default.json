@@ -32,6 +32,7 @@
 	],
 	"commitBodyTable": true,
 	"rebaseWhen": "conflicted",
+	"recreateWhen": "always",
 	"platformCommit": "enabled",
 	"configMigration": true
 }
