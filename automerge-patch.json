@@ -4,6 +4,7 @@
 		{
 			"automerge": true,
 			"automergeType": "pr",
+			"groupName": "non-major-updates",
 			"matchUpdateTypes": [
 				"minor",
 				"patch"
