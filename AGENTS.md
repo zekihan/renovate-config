@@ -6,7 +6,7 @@ This file provides guidance to AI Agents when working with code in this reposito
 
 A collection of shared [Renovate](https://docs.renovatebot.com/) preset configurations. Other repositories consume these presets via `github>zekihan/renovate-config:preset-name` in their `renovate.json`.
 
-No build, test, or lint commands exist — this is a pure JSON/JSON5 config repo.
+This is a JSON/JSON5 config repo. Validate with the pinned Renovate validator and `tests/schedule.mjs`; see README.md for the command.
 
 ## File roles
 

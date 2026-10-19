@@ -1,38 +1,51 @@
 {
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": [
-		"config:recommended",
-		":dependencyDashboard",
-		":disableRateLimiting",
-		":enablePreCommit",
-		"github>zekihan/renovate-config:automerge-docker-digest",
-		"github>zekihan/renovate-config:automerge-github-actions",
-		"github>zekihan/renovate-config:automerge-patch",
-		"github>zekihan/renovate-config:commit-message",
-		"github>zekihan/renovate-config:pr-labels",
-		"github>zekihan/renovate-config:semantic-commits",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":disableRateLimiting",
+    ":enablePreCommit",
+    "github>zekihan/renovate-config:automerge-docker-digest",
+    "github>zekihan/renovate-config:automerge-github-actions",
+    "github>zekihan/renovate-config:automerge-patch",
+    "github>zekihan/renovate-config:commit-message",
+    "github>zekihan/renovate-config:pr-labels",
+    "github>zekihan/renovate-config:semantic-commits",
     "github>zekihan/renovate-config:go",
     "github>zekihan/renovate-config:helm",
-		"github>zekihan/renovate-config:custom-managers.json5"
-	],
-	"timezone": "Europe/Istanbul",
-	"dependencyDashboardTitle": "Renovate Dashboard",
-	"suppressNotifications": [
-		"prIgnoreNotification"
-	],
-	"dependencyDashboardLabels": [
-		"dependency/renovate"
-	],
-	"addLabels": [
-		"dependency/renovate"
-	],
-	"dependencyDashboardAutoclose": false,
-	"reviewers": [
-		"zekihan"
-	],
-	"commitBodyTable": true,
-	"rebaseWhen": "conflicted",
-	"recreateWhen": "always",
-	"platformCommit": "enabled",
-	"configMigration": true
+    "github>zekihan/renovate-config:custom-managers.json5"
+  ],
+  "timezone": "Europe/Istanbul",
+  "dependencyDashboardTitle": "Renovate Dashboard",
+  "suppressNotifications": [
+    "prIgnoreNotification"
+  ],
+  "dependencyDashboardLabels": [
+    "dependency/renovate"
+  ],
+  "addLabels": [
+    "dependency/renovate"
+  ],
+  "dependencyDashboardAutoclose": false,
+  "reviewers": [
+    "zekihan"
+  ],
+  "commitBodyTable": true,
+  "rebaseWhen": "conflicted",
+  "recreateWhen": "auto",
+  "platformCommit": "enabled",
+  "configMigration": true,
+  "schedule": [
+    "* 0-5 * * 1,4"
+  ],
+  "updateNotScheduled": false,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": [],
+    "updateNotScheduled": true,
+    "minimumReleaseAge": null,
+    "automerge": false,
+    "automergeType": "pr",
+    "ignoreTests": false
+  }
 }
