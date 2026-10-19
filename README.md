@@ -3,9 +3,9 @@ renovate-config
 
 ## Shared update cadence
 
-The default preset allows routine branch creation and updates Monday and Thursday
+The default preset allows routine branch creation and updates every Friday
 00:00–06:00 Europe/Istanbul. `updateNotScheduled: false` prevents updates to
-existing branches outside those windows; `recreateWhen: auto` avoids unconditional
+existing branches outside that window; `recreateWhen: auto` avoids unconditional
 recreation of closed updates. The Renovate service must run within a window.
 Repositories can explicitly override these settings.
 

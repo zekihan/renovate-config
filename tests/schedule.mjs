@@ -15,12 +15,13 @@ assert.equal(config.recreateWhen, 'auto');
 const originalNow = Date.now;
 try {
   for (const [now, expected] of [
-    ['2026-10-18T20:59:00Z', false],
-    ['2026-10-18T21:00:00Z', true],
-    ['2026-10-19T02:59:00Z', true],
-    ['2026-10-19T03:00:00Z', false],
-    ['2026-10-20T00:00:00Z', false],
-    ['2026-10-22T00:00:00Z', true],
+    ['2026-10-18T21:00:00Z', false], // Monday opening no longer allowed
+    ['2026-10-22T00:00:00Z', false], // Thursday no longer allowed
+    ['2026-10-22T20:59:00Z', false],
+    ['2026-10-22T21:00:00Z', true],  // Friday 00:00 Istanbul
+    ['2026-10-23T02:59:00Z', true],
+    ['2026-10-23T03:00:00Z', false], // Friday 06:00 Istanbul
+    ['2026-10-24T00:00:00Z', false],
   ]) {
     Date.now = () => Date.parse(now);
     assert.equal(isScheduledNow(config), expected, now);

@@ -36,7 +36,7 @@
   "platformCommit": "enabled",
   "configMigration": true,
   "schedule": [
-    "* 0-5 * * 1,4"
+    "* 0-5 * * 5"
   ],
   "updateNotScheduled": false,
   "vulnerabilityAlerts": {
