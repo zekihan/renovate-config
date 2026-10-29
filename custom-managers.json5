@@ -11,7 +11,7 @@
 				// Inline
 				"\\S+:[ \\t]+[\"']?(?<currentValue>[^\"'\\s]+)[\"']?[ \\t]+# ?renovate: depName=(?<depName>\\S+)( datasource=(?<datasource>\\S+))?( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?",
 				// Newline
-				"(?m:^[ \\t]*?# ?renovate: depName=(?<depName>\\S+)( datasource=(?<datasource>\\S+))?( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?\\r?\\n[ \\t]*?\\S+:[ \\t]+[\"']?(?<currentValue>[^\"'\\s]+)[\"']?\\r?$)",
+				"(?m:^[ \\t]*?# ?renovate: depName=(?<depName>\\S+)( datasource=(?<datasource>\\S+))?( versioning=(?<versioning>\\S+))?( extractVersion=(?<extractVersion>\\S+))?\\r?\\n[ \\t]*?(?:- +)?\\S+:[ \\t]+[\"']?(?<currentValue>[^\"'\\s]+)[\"']?\\r?$)",
 			],
 			datasourceTemplate: "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
 			versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
