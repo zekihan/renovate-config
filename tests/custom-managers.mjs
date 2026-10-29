@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -71,10 +73,58 @@ for (const placement of ['inline', 'newline']) {
   }
 }
 
+// A preceding annotation also applies to mappings that start a YAML sequence
+// item, as commonly used for lists of tools or manifests.
+for (const eol of ['\n', '\r\n']) {
+  for (const quote of ['', '"', "'"]) {
+    for (const markerSpace of [' ', '   ']) {
+      const content = `tools:${eol}  # renovate: depName=example/tool${eol}  -${markerSpace}version: ${quote}v1.2.3${quote}${eol}`;
+      const label = JSON.stringify({ eol, quote, markerSpace });
+      try {
+        assert.equal(YAML.parse(content).tools[0].version, 'v1.2.3', label);
+        const deps = extractPackageFile(content, 'fixture.yaml', annotations)?.deps;
+        assert.deepEqual(deps?.map(d => [d.depName, d.currentValue]), [
+          ['example/tool', 'v1.2.3'],
+        ], label);
+      } catch (error) {
+        failures.push(`${label}: ${error.message}`);
+      }
+    }
+  }
+}
+
+// Exercise Renovate's actual replacement and re-extraction in a disposable
+// directory. Updating the first item must preserve the neighboring dependency.
+const { GlobalConfig } = await import(pathToFileURL(join(packageRoot, 'dist/config/global.js')).href);
+const { doAutoReplace } = await import(pathToFileURL(join(packageRoot, 'dist/workers/repository/update/branch/auto-replace.js')).href);
+const localDir = await mkdtemp(join(tmpdir(), 'renovate-list-'));
+GlobalConfig.set({ localDir });
+try {
+  const content = 'tools:\n  # renovate: depName=example/one\n  - version: "v1.2.3"\n  # renovate: depName=example/two\n  - version: "v1.2.3"\n';
+  const deps = extractPackageFile(content, 'fixture.yaml', annotations)?.deps;
+  assert.equal(deps?.length, 2);
+  const updated = await doAutoReplace({
+    ...annotations,
+    ...deps[0],
+    manager: 'regex',
+    packageFile: 'fixture.yaml',
+    depIndex: 0,
+    newValue: 'v1.2.4',
+    autoReplaceGlobalMatch: true,
+  }, content, false);
+  assert.equal(updated, content.replace('- version: "v1.2.3"', '- version: "v1.2.4"'));
+  assert.deepEqual(YAML.parse(updated).tools, [{ version: 'v1.2.4' }, { version: 'v1.2.3' }]);
+} finally {
+  GlobalConfig.reset();
+  await rm(localDir, { recursive: true, force: true });
+}
+
 // Whitespace tolerance must not let a match take a value or annotation
 // from a different line.
 for (const content of [
   '# renovate: depName=example/tool\nversion:\n  v1.2.3\n',
+  '# renovate: depName=example/tool\n- version:\n    v1.2.3\n',
+  '# renovate: depName=example/tool\n-\n  version: v1.2.3\n',
   'version: v1.2.3\n# renovate: depName=example/tool\n',
 ]) {
   assert.equal(extractPackageFile(content, 'fixture.yaml', annotations), null);
