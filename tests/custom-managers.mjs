@@ -45,6 +45,41 @@ for (const placement of ['inline', 'newline']) {
   }
 }
 
+// YAML allows horizontal whitespace after a mapping colon and before a comment.
+// Aligned values and comments must not silently drop annotated dependencies.
+for (const placement of ['inline', 'newline']) {
+  for (const afterColon of [' ', '    ', '\t']) {
+    for (const beforeComment of (placement === 'inline' ? [' ', '   ', '\t'] : [''])) {
+      for (const quote of ['', '"', "'"]) {
+        const annotation = '# renovate: depName=example/aligned';
+        const mapping = `version:${afterColon}${quote}v1.2.3${quote}`;
+        const content = placement === 'inline'
+          ? `${mapping}${beforeComment}${annotation}\n`
+          : `${annotation}\n${mapping}\n`;
+        const label = JSON.stringify({ placement, afterColon, beforeComment, quote });
+        try {
+          assert.equal(YAML.parse(content).version, 'v1.2.3', label);
+          const deps = extractPackageFile(content, 'fixture.yaml', annotations)?.deps;
+          assert.deepEqual(deps?.map(d => [d.depName, d.currentValue]), [
+            ['example/aligned', 'v1.2.3'],
+          ], label);
+        } catch (error) {
+          failures.push(`${label}: ${error.message}`);
+        }
+      }
+    }
+  }
+}
+
+// Whitespace tolerance must not let a match take a value or annotation
+// from a different line.
+for (const content of [
+  '# renovate: depName=example/tool\nversion:\n  v1.2.3\n',
+  'version: v1.2.3\n# renovate: depName=example/tool\n',
+]) {
+  assert.equal(extractPackageFile(content, 'fixture.yaml', annotations), null);
+}
+
 // Defaults and adjacent dependencies must remain independent.
 const adjacent = '# renovate: depName=example/one\nversion: v1.2.3\n# renovate: depName=example/two\nversion: "v2.3.4"\n';
 const deps = extractPackageFile(adjacent, 'fixture.yaml', annotations).deps;
