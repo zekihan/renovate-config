@@ -6,7 +6,7 @@ This file provides guidance to AI Agents when working with code in this reposito
 
 A collection of shared [Renovate](https://docs.renovatebot.com/) preset configurations. Other repositories consume these presets via `github>zekihan/renovate-config:preset-name` in their `renovate.json`.
 
-This is a JSON/JSON5 config repo. Validate with the pinned Renovate validator and `tests/schedule.mjs`; see README.md for the command.
+This is a JSON/JSON5 config repo. Use Node.js 24 (at least 24.11.0) and run `npm ci && npm run validate && npm test` before committing. The npm scripts strictly validate every preset and run both regression tests with the pinned Renovate dependency. There is no build step.
 
 ## File roles
 
@@ -24,7 +24,7 @@ This is a JSON/JSON5 config repo. Validate with the pinned Renovate validator an
 
 ## Conventions
 
-- All files must include `"$schema": "https://docs.renovatebot.com/renovate-schema.json"` as the first field.
+- All Renovate config files must include `"$schema": "https://docs.renovatebot.com/renovate-schema.json"` as the first field.
 - `custom-managers.json5` uses JSON5 format (allows comments and unquoted keys); all others use strict JSON.
 - When adding a new preset file, also add it to the `extends` array in `default.json`.
 - The automerge presets distinguish between `automergeType: "branch"` (no PR required, used for low-risk digest/CI updates) and `automergeType: "pr"` (PR required with passing tests, used for patch/minor updates).
