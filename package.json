@@ -1,0 +1,14 @@
+{
+  "name": "renovate-config",
+  "private": true,
+  "scripts": {
+    "validate": "for preset in *.json *.json5; do case \"$preset\" in package.json|package-lock.json) continue ;; esac; renovate-config-validator --strict \"$preset\" || exit; done",
+    "test": "node tests/schedule.mjs && node tests/custom-managers.mjs"
+  },
+  "engines": {
+    "node": "^24.11.0"
+  },
+  "devDependencies": {
+    "renovate": "44.216.4"
+  }
+}

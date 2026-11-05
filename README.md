@@ -13,4 +13,7 @@ GitHub vulnerability-alert fixes bypass the schedule and release-age delay, but
 use tested, reviewed PRs. This is not container vulnerability scanning. Existing
 automerge eligibility otherwise remains unchanged.
 
-Validate with the pinned Renovate package: `npm exec --yes --package renovate@44.123.0 --call 'renovate-config-validator --strict default.json && node tests/schedule.mjs && node tests/custom-managers.mjs'`.
+Use Node.js 24 (at least 24.11.0), then run `npm ci && npm run validate && npm test`.
+`npm run validate` strictly validates every preset and the repository's Renovate
+config. `npm test` runs the schedule and custom-manager regression tests with the
+Renovate version pinned in `package.json` and `package-lock.json`.
