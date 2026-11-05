@@ -2,7 +2,7 @@
   "name": "renovate-config",
   "private": true,
   "scripts": {
-    "validate": "for preset in *.json *.json5; do case \"$preset\" in package*.json) continue ;; esac; renovate-config-validator --strict \"$preset\" || exit; done",
+    "validate": "for preset in *.json *.json5; do case \"$preset\" in package.json|package-lock.json) continue ;; esac; renovate-config-validator --strict \"$preset\" || exit; done",
     "test": "node tests/schedule.mjs && node tests/custom-managers.mjs"
   },
   "engines": {
