@@ -6,7 +6,7 @@
     "test": "node tests/schedule.mjs && node tests/custom-managers.mjs"
   },
   "engines": {
-    "node": "^24.11.0"
+    "node": "^26.0.0"
   },
   "devDependencies": {
     "renovate": "44.216.4"
