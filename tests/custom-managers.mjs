@@ -47,6 +47,32 @@ for (const placement of ['inline', 'newline']) {
   }
 }
 
+// Spacing between annotation fields must preserve the explicit datasource and templates.
+{
+  const depName = 'registry.example:5000/team/tool';
+  const versioning = String.raw`regex:^(?<major>\d+)\.(?<minor>\d+)-alpine$`;
+  const extractVersion = '^v(?<version>.*)$';
+  const fields = [`depName=${depName}`, 'datasource=docker', `versioning=${versioning}`, `extractVersion=${extractVersion}`];
+  for (const separator of ['  ', '\t']) {
+    const annotation = `# renovate: ${fields.join(separator)}`;
+    for (const content of [
+      `tag: "v1.2-alpine" ${annotation}\n`,
+      `${annotation}${separator}\r\ntag: "v1.2-alpine"\r\n`,
+    ]) {
+      const label = JSON.stringify(content);
+      try {
+        assert.equal(YAML.parse(content).tag, 'v1.2-alpine', label);
+        const deps = extractPackageFile(content, 'fixture.yaml', annotations)?.deps;
+        assert.deepEqual(deps?.map(d => [d.depName, d.currentValue, d.datasource, d.versioning, d.extractVersion]), [
+          [depName, 'v1.2-alpine', 'docker', versioning, extractVersion],
+        ], label);
+      } catch (error) {
+        failures.push(`${label}: ${error.message}`);
+      }
+    }
+  }
+}
+
 // YAML allows horizontal whitespace after a mapping colon and before a comment.
 // Aligned values and comments must not silently drop annotated dependencies.
 for (const placement of ['inline', 'newline']) {
@@ -114,6 +140,38 @@ try {
   }, content, false);
   assert.equal(updated, content.replace('- version: "v1.2.3"', '- version: "v1.2.4"'));
   assert.deepEqual(YAML.parse(updated).tools, [{ version: 'v1.2.4' }, { version: 'v1.2.3' }]);
+
+  const commented = [
+    '# renovate: depName=example/commented',
+    'version: v1.2.3 # v1.2.3 is deployed elsewhere',
+    '---',
+    '# renovate: depName=example/preceding',
+    'version: "v1.2.3" # renovate: depName=example/inline',
+    '---',
+    '# renovate: depName=example/quoted',
+    "version: 'v1.2.3'\t# pinned",
+  ].join('\r\n');
+  assert.deepEqual(YAML.parseAllDocuments(commented).map(doc => doc.toJSON()), [
+    { version: 'v1.2.3' },
+    { version: 'v1.2.3' },
+    { version: 'v1.2.3' },
+  ]);
+  const commentedDeps = extractPackageFile(commented, 'fixture.yaml', annotations)?.deps;
+  assert.deepEqual(commentedDeps?.map(d => [d.depName, d.currentValue]), [
+    ['example/inline', 'v1.2.3'],
+    ['example/commented', 'v1.2.3'],
+    ['example/quoted', 'v1.2.3'],
+  ]);
+  const updatedCommented = await doAutoReplace({
+    ...annotations,
+    ...commentedDeps[1],
+    manager: 'regex',
+    packageFile: 'fixture.yaml',
+    depIndex: 1,
+    newValue: 'v1.2.4',
+    autoReplaceGlobalMatch: true,
+  }, commented, false);
+  assert.equal(updatedCommented, commented.replace('version: v1.2.3 #', 'version: v1.2.4 #'));
 } finally {
   GlobalConfig.reset();
   await rm(localDir, { recursive: true, force: true });
