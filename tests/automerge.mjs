@@ -63,3 +63,30 @@ test('generic automerge excludes v-prefixed zero-major Go module updates', async
     assert.equal(update.ignoreTests, false);
   }
 });
+
+test('the default preset preserves GitHub Actions branch automerge', async () => {
+  const actionConfig = {
+    ...config,
+    manager: 'github-actions',
+    datasource: 'github-tags',
+    depType: 'action',
+    depName: 'example/action',
+    packageName: 'example/action',
+    versioning: 'github-actions',
+    currentValue: 'v1.2.3',
+    currentVersion: 'v1.2.3',
+  };
+  for (const [updateType, newVersion, branchAutomerge] of [
+    ['minor', 'v1.3.0', true],
+    ['patch', 'v1.2.4', true],
+    ['digest', 'v1.2.3', true],
+    ['major', 'v2.0.0', false],
+  ]) {
+    const { automerge, automergeType, ignoreTests } = await resolveUpdateTypeConfig({ ...actionConfig, newVersion }, updateType);
+    assert.deepEqual({ automerge, automergeType, ignoreTests }, {
+      automerge: branchAutomerge,
+      automergeType: branchAutomerge ? 'branch' : 'pr',
+      ignoreTests: branchAutomerge,
+    }, `${updateType} v1.2.3 → ${newVersion}`);
+  }
+});
