@@ -15,5 +15,5 @@ automerge eligibility otherwise remains unchanged.
 
 Use Node.js 24 (at least 24.11.0), then run `npm ci && npm run validate && npm test`.
 `npm run validate` strictly validates every preset and the repository's Renovate
-config. `npm test` runs the schedule and custom-manager regression tests with the
-Renovate version pinned in `package.json` and `package-lock.json`.
+config. `npm test` runs the schedule, custom-manager, and automerge regression
+tests with the Renovate version pinned in `package.json` and `package-lock.json`.
