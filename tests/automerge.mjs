@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, realpathSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { delimiter, dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
@@ -11,9 +12,11 @@ const importRenovate = file => import(pathToFileURL(join(packageRoot, 'dist', fi
 const { init } = await importRenovate('logger/index.js');
 await init();
 const { getConfig } = await importRenovate('config/defaults.js');
+const { GlobalConfig } = await importRenovate('config/global.js');
 const { mergeChildConfig } = await importRenovate('config/utils.js');
 const { presetSources, resolveConfigPresets } = await importRenovate('config/presets/index.js');
 const { fetchPreset, parsePreset } = await importRenovate('config/presets/util.js');
+const { extractPackageFile: extractWorkflow } = await importRenovate('modules/manager/github-actions/extract.js');
 const { extractPackageFile: extractGoModule } = await importRenovate('modules/manager/gomod/extract.js');
 const { api: gomodVersioning } = await importRenovate('modules/versioning/gomod/index.js');
 const { resolveCurrentVersion } = await importRenovate('workers/repository/process/lookup/current.js');
@@ -88,5 +91,51 @@ test('the default preset preserves GitHub Actions branch automerge', async () =>
       automergeType: branchAutomerge ? 'branch' : 'pr',
       ignoreTests: branchAutomerge,
     }, `${updateType} v1.2.3 → ${newVersion}`);
+  }
+});
+
+test('only action and reusable workflow refs get GitHub Actions branch automerge', async t => {
+  GlobalConfig.set({ localDir: mkdtempSync(join(tmpdir(), 'renovate-workflow-')) });
+  t.after(() => GlobalConfig.reset());
+  const packageFile = '.github/workflows/fixture.yml';
+  const { deps } = await extractWorkflow(`jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: registry.example/fixture/db:1.2.3@sha256:${'a'.repeat(64)}
+    steps:
+      - uses: actions/setup-node@v4.0.0
+        with:
+          node-version: '20.11.0'
+  reusable:
+    uses: example/fixture/.github/workflows/reusable.yml@v1.2.3
+`, packageFile);
+
+  for (const [depType, updateType, newVersion, expectedType] of [
+    ['service', 'patch', '1.2.4', 'pr'],
+    ['uses-with', 'patch', '20.11.1', 'pr'],
+    ['service', 'digest', '1.2.3', 'branch'],
+    ['workflow', 'minor', 'v1.3.0', 'branch'],
+  ]) {
+    await t.test(`${depType} ${updateType}`, async () => {
+      const dep = deps.find(item => item.depType === depType);
+      assert.ok(dep);
+      assert.equal(dep.skipReason, undefined);
+      const { automerge, automergeType, ignoreTests } = await resolveUpdateTypeConfig({
+        ...config,
+        ...dep,
+        manager: 'github-actions',
+        packageFile,
+        packageName: dep.packageName ?? dep.depName,
+        currentVersion: dep.currentValue,
+        newVersion,
+      }, updateType);
+      assert.deepEqual({ automerge, automergeType, ignoreTests }, {
+        automerge: true,
+        automergeType: expectedType,
+        ignoreTests: expectedType === 'branch',
+      });
+    });
   }
 });

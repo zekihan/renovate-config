@@ -5,7 +5,7 @@
 			"matchUpdateTypes": [
 				"major"
 			],
-			"labels": [
+			"addLabels": [
 				"type/major"
 			]
 		},
@@ -13,7 +13,7 @@
 			"matchUpdateTypes": [
 				"minor"
 			],
-			"labels": [
+			"addLabels": [
 				"type/minor"
 			]
 		},
@@ -21,7 +21,7 @@
 			"matchUpdateTypes": [
 				"patch"
 			],
-			"labels": [
+			"addLabels": [
 				"type/patch"
 			]
 		},
@@ -29,7 +29,7 @@
 			"matchUpdateTypes": [
 				"digest"
 			],
-			"labels": [
+			"addLabels": [
 				"type/digest"
 			]
 		},
