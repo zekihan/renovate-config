@@ -10,6 +10,9 @@
 			"matchUpdateTypes": [
 				"digest"
 			],
+			"group": {
+				"branchTopic": "{{{groupSlug}}}-docker-digest"
+			},
 			"ignoreTests": true
 		}
 	]

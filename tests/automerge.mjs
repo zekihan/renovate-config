@@ -16,12 +16,14 @@ const { GlobalConfig } = await importRenovate('config/global.js');
 const { mergeChildConfig } = await importRenovate('config/utils.js');
 const { presetSources, resolveConfigPresets } = await importRenovate('config/presets/index.js');
 const { fetchPreset, parsePreset } = await importRenovate('config/presets/util.js');
+const { extractPackageFile: extractDockerfile } = await importRenovate('modules/manager/dockerfile/extract.js');
 const { extractPackageFile: extractWorkflow } = await importRenovate('modules/manager/github-actions/extract.js');
 const { extractPackageFile: extractGoModule } = await importRenovate('modules/manager/gomod/extract.js');
 const { api: gomodVersioning } = await importRenovate('modules/versioning/gomod/index.js');
 const { resolveCurrentVersion } = await importRenovate('workers/repository/process/lookup/current.js');
 const { classifyRelease } = await importRenovate('workers/repository/process/lookup/update-type.js');
 const { resolveUpdateTypeConfig } = await importRenovate('workers/repository/process/lookup/filter-checks.js');
+const { branchifyUpgrades } = await importRenovate('workers/repository/updates/branchify.js');
 
 // Resolve the preset as a consumer would, with GitHub files supplied by the checkout.
 presetSources.github.load = async () => ({
@@ -39,6 +41,56 @@ presetSources.github.load = async () => ({
 });
 const { config: presetConfig } = await resolveConfigPresets({ extends: ['github>zekihan/renovate-config'] });
 const config = mergeChildConfig(getConfig(), presetConfig);
+
+test('grouped Docker digest updates cannot bypass tests for a tag patch', async () => {
+  const packageFile = 'Dockerfile';
+  const currentDigest = `sha256:${'a'.repeat(64)}`;
+  const newDigest = `sha256:${'b'.repeat(64)}`;
+  const { deps } = extractDockerfile(`FROM registry.example/fixture/api:1.2.3@${currentDigest} AS api
+FROM registry.example/fixture/db:1.2.3@${currentDigest} AS db
+FROM registry.example/fixture/worker:1.2.3
+`, packageFile, {});
+
+  for (const dep of deps) {
+    dep.currentVersion = dep.currentValue;
+    dep.updates = [dep.currentDigest
+      ? { updateType: 'digest', newValue: dep.currentValue, newDigest }
+      : { updateType: 'patch', newValue: '1.2.4', newVersion: '1.2.4', newMajor: 1, newMinor: 2 }];
+  }
+
+  const groupedConfig = mergeChildConfig(config, {
+    errors: [],
+    warnings: [],
+    semanticCommits: 'disabled',
+    packageRules: [{
+      matchDatasources: ['docker'],
+      matchPackageNames: ['registry.example/fixture/**'],
+      groupName: 'Fixture images',
+    }],
+  });
+  const { branches } = await branchifyUpgrades(groupedConfig, { dockerfile: [{ packageFile, deps }] });
+
+  const patch = branches.find(branch => branch.upgrades.some(upgrade => upgrade.updateType === 'patch'));
+  assert.ok(patch);
+  assert.deepEqual({ automerge: patch.automerge, automergeType: patch.automergeType, ignoreTests: patch.ignoreTests }, {
+    automerge: true,
+    automergeType: 'pr',
+    ignoreTests: false,
+  });
+  assert.deepEqual(patch.upgrades.map(upgrade => upgrade.updateType), ['patch']);
+
+  const digests = branches.find(branch => branch.updateType === 'digest');
+  assert.ok(digests);
+  assert.deepEqual({ automerge: digests.automerge, automergeType: digests.automergeType, ignoreTests: digests.ignoreTests }, {
+    automerge: true,
+    automergeType: 'branch',
+    ignoreTests: true,
+  });
+  assert.deepEqual(digests.upgrades.map(upgrade => upgrade.depName), [
+    'registry.example/fixture/api',
+    'registry.example/fixture/db',
+  ]);
+});
 
 test('generic automerge excludes v-prefixed zero-major Go module updates', async () => {
   for (const [currentValue, newVersion, expectedAutomerge] of [
