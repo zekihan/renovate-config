@@ -140,6 +140,38 @@ try {
   }, content, false);
   assert.equal(updated, content.replace('- version: "v1.2.3"', '- version: "v1.2.4"'));
   assert.deepEqual(YAML.parse(updated).tools, [{ version: 'v1.2.4' }, { version: 'v1.2.3' }]);
+
+  const commented = [
+    '# renovate: depName=example/commented',
+    'version: v1.2.3 # v1.2.3 is deployed elsewhere',
+    '---',
+    '# renovate: depName=example/preceding',
+    'version: "v1.2.3" # renovate: depName=example/inline',
+    '---',
+    '# renovate: depName=example/quoted',
+    "version: 'v1.2.3'\t# pinned",
+  ].join('\r\n');
+  assert.deepEqual(YAML.parseAllDocuments(commented).map(doc => doc.toJSON()), [
+    { version: 'v1.2.3' },
+    { version: 'v1.2.3' },
+    { version: 'v1.2.3' },
+  ]);
+  const commentedDeps = extractPackageFile(commented, 'fixture.yaml', annotations)?.deps;
+  assert.deepEqual(commentedDeps?.map(d => [d.depName, d.currentValue]), [
+    ['example/inline', 'v1.2.3'],
+    ['example/commented', 'v1.2.3'],
+    ['example/quoted', 'v1.2.3'],
+  ]);
+  const updatedCommented = await doAutoReplace({
+    ...annotations,
+    ...commentedDeps[1],
+    manager: 'regex',
+    packageFile: 'fixture.yaml',
+    depIndex: 1,
+    newValue: 'v1.2.4',
+    autoReplaceGlobalMatch: true,
+  }, commented, false);
+  assert.equal(updatedCommented, commented.replace('version: v1.2.3 #', 'version: v1.2.4 #'));
 } finally {
   GlobalConfig.reset();
   await rm(localDir, { recursive: true, force: true });
