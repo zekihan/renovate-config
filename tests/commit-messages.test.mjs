@@ -63,3 +63,37 @@ test('major updates omit the scope when the consumer disables it', async () => {
   assert.match(prTitle, /^feat!: /);
   assert.equal(commitMessage.split('\n')[0], prTitle);
 });
+
+function pinAction(depName, newDigest) {
+  const tag = 'v1.2.3';
+  return {
+    datasource: 'github-tags',
+    depType: 'action',
+    depName,
+    packageName: depName,
+    currentValue: tag,
+    currentVersion: tag,
+    updates: [{ updateType: 'pinDigest', newValue: tag, newDigest }],
+  };
+}
+
+test('a single digest pin identifies the new digest', async () => {
+  const action = pinAction('example/fixture-action', `1234567${'a'.repeat(33)}`);
+  const { commitMessage, prTitle } = await buildBranch({
+    'github-actions': [{ packageFile: '.github/workflows/fixture.yml', deps: [action] }],
+  }, 'helpers:pinGitHubActionDigests');
+  assert.equal(prTitle, 'ci(github-action): pin example/fixture-action to 1234567');
+  assert.equal(commitMessage.split('\n')[0], prTitle);
+});
+
+test('grouped digest pins use a common title', async () => {
+  const actions = [
+    pinAction('example/one', 'a'.repeat(40)),
+    pinAction('example/two', 'b'.repeat(40)),
+  ];
+  const { upgrades, prTitle } = await buildBranch({
+    'github-actions': [{ packageFile: '.github/workflows/fixture.yml', deps: actions }],
+  }, 'helpers:pinGitHubActionDigests');
+  assert.equal(upgrades.length, 2);
+  assert.equal(prTitle, 'ci(github-action): pin dependencies');
+});
