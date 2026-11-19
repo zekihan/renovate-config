@@ -16,17 +16,19 @@
     "github>zekihan/renovate-config:custom-managers.json5"
   ],
   "timezone": "Europe/Istanbul",
-  "dependencyDashboardTitle": "Renovate Dashboard",
+  "dependencyDashboard": {
+    "title": "Renovate Dashboard",
+    "labels": [
+      "dependency/renovate"
+    ],
+    "autoclose": false
+  },
   "suppressNotifications": [
     "prIgnoreNotification"
-  ],
-  "dependencyDashboardLabels": [
-    "dependency/renovate"
   ],
   "addLabels": [
     "dependency/renovate"
   ],
-  "dependencyDashboardAutoclose": false,
   "reviewers": [
     "zekihan"
   ],
