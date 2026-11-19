@@ -47,6 +47,32 @@ for (const placement of ['inline', 'newline']) {
   }
 }
 
+// Spacing between annotation fields must preserve the explicit datasource and templates.
+{
+  const depName = 'registry.example:5000/team/tool';
+  const versioning = String.raw`regex:^(?<major>\d+)\.(?<minor>\d+)-alpine$`;
+  const extractVersion = '^v(?<version>.*)$';
+  const fields = [`depName=${depName}`, 'datasource=docker', `versioning=${versioning}`, `extractVersion=${extractVersion}`];
+  for (const separator of ['  ', '\t']) {
+    const annotation = `# renovate: ${fields.join(separator)}`;
+    for (const content of [
+      `tag: "v1.2-alpine" ${annotation}\n`,
+      `${annotation}${separator}\r\ntag: "v1.2-alpine"\r\n`,
+    ]) {
+      const label = JSON.stringify(content);
+      try {
+        assert.equal(YAML.parse(content).tag, 'v1.2-alpine', label);
+        const deps = extractPackageFile(content, 'fixture.yaml', annotations)?.deps;
+        assert.deepEqual(deps?.map(d => [d.depName, d.currentValue, d.datasource, d.versioning, d.extractVersion]), [
+          [depName, 'v1.2-alpine', 'docker', versioning, extractVersion],
+        ], label);
+      } catch (error) {
+        failures.push(`${label}: ${error.message}`);
+      }
+    }
+  }
+}
+
 // YAML allows horizontal whitespace after a mapping colon and before a comment.
 // Aligned values and comments must not silently drop annotated dependencies.
 for (const placement of ['inline', 'newline']) {
