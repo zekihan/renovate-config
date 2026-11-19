@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "validate": "for preset in *.json *.json5; do case \"$preset\" in package.json|package-lock.json) continue ;; esac; renovate-config-validator --strict \"$preset\" || exit; done",
-    "test": "node tests/schedule.mjs && node tests/custom-managers.mjs && node --test --test-concurrency=1 tests/automerge.mjs tests/pr-labels.test.mjs"
+    "test": "node tests/schedule.mjs && node tests/custom-managers.mjs && node --test --test-concurrency=1 tests/automerge.mjs tests/go.test.mjs tests/helm.test.mjs tests/pr-labels.test.mjs"
   },
   "engines": {
     "node": "^26.0.0"

@@ -10,7 +10,7 @@
       ],
       "matchDepTypes": [
         "golang",
-        "go"
+        "toolchain"
       ],
       "enabled": true,
       "rangeStrategy": "bump"
