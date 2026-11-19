@@ -9,7 +9,7 @@
 				"major"
 			],
 			"semanticCommitType": "feat",
-			"commitMessagePrefix": "{{semanticCommitType}}({{semanticCommitScope}})!:",
+			"commitMessagePrefix": "{{semanticCommitType}}{{#if semanticCommitScope}}({{semanticCommitScope}}){{/if}}!:",
 			"commitMessageExtra": "( {{currentVersion}} → {{newVersion}} )"
 		},
 		{

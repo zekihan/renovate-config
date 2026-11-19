@@ -3,6 +3,9 @@
 	"commitMessageTopic": "{{depName}}",
 	"commitMessageExtra": "to {{newVersion}}",
 	"commitMessageSuffix": "",
+	"pinDigest": {
+		"commitMessageExtra": "to {{newDigestShort}}"
+	},
 	"packageRules": [
 		{
 			"matchDatasources": [
