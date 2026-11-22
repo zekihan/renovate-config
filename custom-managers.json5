@@ -21,7 +21,7 @@
 		},
 		{
 			customType: "regex",
-			description: "Process GitHub download dependencies in YAML files",
+			description: "Process GitHub release and raw URL dependencies in YAML files",
 			managerFilePatterns: [
 				"/\\.ya?ml(\\.j2)?$/"
 			],
