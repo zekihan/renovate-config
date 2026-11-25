@@ -17,7 +17,7 @@ await init();
 const { regexEngineStatus } = await import(pathToFileURL(join(packageRoot, 'dist/util/regex.js')).href);
 assert.equal(regexEngineStatus.type, 'available', 'These regressions require Renovate\'s native RE2 engine');
 const { extractPackageFile } = await import(pathToFileURL(join(packageRoot, 'dist/modules/manager/custom/regex/index.js')).href);
-const [annotations, urls] = JSON5.parse(readFileSync('custom-managers.json5', 'utf8')).customManagers;
+const [annotations, urls, goTools] = JSON5.parse(readFileSync('custom-managers.json5', 'utf8')).customManagers;
 const failures = [];
 
 // Exercise Renovate's regex engine and templates, without any datasource lookup.
@@ -231,5 +231,20 @@ for (const host of ['release', 'raw']) {
     }
   }
 }
+// Go commands in workflows and Makefiles must expose separately pinned tools.
+for (const content of [
+  'run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...\n',
+  '\tgo install honnef.co/go/tools/cmd/staticcheck@v0.6.1\n',
+  'go run example.com/tool@v1.2.3-rc.1 && go install example.org/other@v2.0.0+incompatible\n',
+]) {
+  const deps = extractPackageFile(content, 'fixture.yaml', goTools)?.deps;
+  const expected = content.includes('govulncheck')
+    ? [['golang.org/x/vuln/cmd/govulncheck', 'v1.9.0', 'go']]
+    : content.includes('staticcheck')
+      ? [['honnef.co/go/tools/cmd/staticcheck', 'v0.6.1', 'go']]
+      : [['example.com/tool', 'v1.2.3-rc.1', 'go'], ['example.org/other', 'v2.0.0+incompatible', 'go']];
+  assert.deepEqual(deps?.map(d => [d.depName, d.currentValue, d.datasource]), expected);
+}
+assert.equal(extractPackageFile('go run example.com/tool@latest\n', 'Makefile', goTools), null);
 assert.deepEqual(failures, []);
 console.log('Custom manager extraction tests passed');
