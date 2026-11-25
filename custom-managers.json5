@@ -35,5 +35,17 @@
 			versioningTemplate: "semver",
 			extractVersionTemplate: "^(?<version>.*)$",
 		},
+		{
+			customType: "regex",
+			description: "Process versioned Go tool invocations",
+			managerFilePatterns: [
+				"/(^|/)Makefile$/",
+				"/\\.ya?ml(\\.j2)?$/"
+			],
+			matchStrings: [
+				"(?:^|[\\s;&|])go[ \t]+(?:run|install)[ \t]+(?<depName>[a-zA-Z0-9][a-zA-Z0-9._~+/-]*\\.[a-zA-Z0-9._~+/-]+)@(?<currentValue>v[0-9][a-zA-Z0-9.+-]*)"
+			],
+			datasourceTemplate: "go",
+		},
 	],
 }
