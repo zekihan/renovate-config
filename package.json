@@ -8,6 +8,9 @@
   "engines": {
     "node": "^26.0.0"
   },
+  "allowScripts": {
+    "re2": true
+  },
   "devDependencies": {
     "renovate": "44.255.1"
   }
