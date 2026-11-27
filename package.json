@@ -12,6 +12,6 @@
     "re2": true
   },
   "devDependencies": {
-    "renovate": "44.255.1"
+    "renovate": "45.1.0"
   }
 }
